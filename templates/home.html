@@ -54,9 +54,12 @@
 
         <main>
             <main>
-                {% for row in rows %}
-                    {% include "_tweet.html" %}
-                {% endfor %}
+                <div id="tweets_container">
+                    {% for row in rows %}
+                        {% include "_tweet.html" %}
+                    {% endfor %}
+                </div>
+                {% include "___show_more_tweets.html" %}
             </main>
         </main>
         <aside>
@@ -85,6 +88,7 @@
                 </div>
         </aside>
     </div>
+    <script src="{{ url_for('static', filename='mixhtml.js') }}"></script>
 </body>
  
 </html>

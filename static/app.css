@@ -301,6 +301,11 @@ a {
       margin: 1.5rem 0;
     }
 
+    .who-to-follow {
+      position: sticky;
+      top: 2rem;
+    }
+
     .happening-now,
     .who-to-follow {
       border: 1px solid rgb(230, 230, 230);

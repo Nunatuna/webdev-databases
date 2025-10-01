@@ -241,6 +241,65 @@ def api_tweet():
     finally:
         pass
 
+
+##############################
+@app.get("/tweets")
+def view_tweets():
+    try:
+        next_page = 1
+        tweets_per_page = 2
+        offset = 0
+
+        db, cursor = x.db()
+        q = "SELECT * FROM posts LIMIT %s, %s"
+        cursor.execute(q, (offset, tweets_per_page))
+        rows = cursor.fetchall()
+
+        return render_template("tweets.html", rows=rows, next_page=next_page)
+    except Exception as ex:
+        ic(ex)
+        return "error"
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+##############################
+@app.get("/api-get-tweets")
+def api_get_tweets():
+    try:
+        next_page = int(request.args.get("page", "0"))
+        tweets_per_page = 2
+        offset = next_page * tweets_per_page
+
+        db, cursor = x.db()
+        q = "SELECT * FROM posts LIMIT %s, %s"
+        cursor.execute(q, (offset, tweets_per_page))
+        rows = cursor.fetchall()
+
+        container = ""
+        for row in rows:
+            html_tweet = render_template("_tweet.html", row=row)
+            container += html_tweet
+
+        new_hyperlink = ""
+        if len(rows) == tweets_per_page:
+            new_hyperlink = render_template("___show_more_tweets.html", next_page=next_page + 1)
+
+        return f"""
+            <mixhtml mix-bottom="#tweets_container">
+                {container}
+            </mixhtml>
+            <mixhtml mix-replace="#show_more">
+                {new_hyperlink}
+            </mixhtml>
+        """
+    except Exception as ex:
+        ic(ex)
+        return "error"
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
 ##############################
 @app.post("/login")
 def handle_login():
@@ -311,10 +370,13 @@ def handle_signup():
 @x.no_cache
 def view_home():
     try:
+        next_page = 1
+        tweets_per_page = 2
+        offset = 0
+
         db, cursor = x.db()
-        
-        q = "SELECT * FROM users JOIN posts ON user_pk = post_user_fk ORDER BY RAND() LIMIT 5"
-        cursor.execute(q)
+        q = "SELECT * FROM users JOIN posts ON user_pk = post_user_fk LIMIT %s, %s"
+        cursor.execute(q, (offset, tweets_per_page))
         rows = cursor.fetchall()
         ic(rows)
 
@@ -330,7 +392,7 @@ def view_home():
 
         # user = session.get("user", "")
         # if not user: return redirect(url_for("view_login"))
-        return render_template("home.html", rows=rows, trending_rows=trending_rows, users_rows=users_rows)
+        return render_template("home.html", rows=rows, trending_rows=trending_rows, users_rows=users_rows, next_page=next_page)
     except Exception as ex:
         ic(ex)
         return "error"

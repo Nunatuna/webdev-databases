@@ -1,0 +1,9 @@
+<main>
+    <div id="tweets_container">
+        {% for row in rows %}
+            {% include "_tweet.html" %}
+        {% endfor %}
+    </div>
+</main>
+
+<script src="{{ url_for('static', filename='mixhtml.js') }}"></script>
